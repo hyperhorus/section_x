@@ -21,7 +21,8 @@ class Estudiante(Resource):
 
 
     def post(self, nombre):
-        estudiante = {'nombre': nombre, 'edad': 23}
+        data = request.get_json()
+        estudiante = {'nombre': nombre, 'edad': data['edad']}
         estudiantes.append(estudiante)
         return estudiante, 201
 
