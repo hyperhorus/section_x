@@ -2,24 +2,32 @@ from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 
 app = Flask(__name__)
+api = Api(app)
+#estudiantes = [{
+#    'nombre': 'Pedro Perez',
+#    'edad': 18
+#    }
+#]
+estudiantes = []
 
-estudiantes = [{
-    'nombre': 'Pedro Perez',
-    'edad': 18
-    }
-]
+class Estudiante(Resource):
+    def get(self, nombre):
+        #estudiante = next(filter(lambda x: x['nombre'], estudiantes), None)
+        #return {'Estudiante': estudiante}, 200 if nombre else 404
+        for estudiante in estudiantes:
+            if estudiante['nombre'] == nombre:
+                return estudiante
+        return {'Estudiante': None}, 404
 
 
-@app.route('/estudiantes')
-def get_estudiantes():
-    return jsonify({'estudiantes': estudiantes})
+    def post(self, nombre):
+        estudiante = {'nombre': nombre, 'edad': 23}
+        estudiantes.append(estudiante)
+        return estudiante, 201
 
-@app.route('/estudiante', methods=['POST'])
-def crea_estudiante():
-    data = request.get_json()
-    nuevo_estudiante = {
-        'nombre':data['nombre'],
-        'edad': data['edad']
-    }
-    estudiantes.append(nuevo_estudiante)
-    return jsonify(nuevo_estudiante)
+class ListaEstudiantes(Resource):
+    def get(self):
+        return {'estudiante': estudiantes}
+
+api.add_resource(Estudiante, '/estudiante/<string:nombre>')
+api.add_resource(ListaEstudiantes, '/estudiantes')
