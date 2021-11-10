@@ -6,25 +6,42 @@ api = Api(app)
 #estudiantes = [{
 #    'nombre': 'Pedro Perez',
 #    'edad': 18
+#    'materias': [{
+#       'titulo':'matematicas'
+#    }]
 #    }
 #]
 estudiantes = []
 
 class Estudiante(Resource):
     def get(self, nombre):
-        #estudiante = next(filter(lambda x: x['nombre'], estudiantes), None)
-        #return {'Estudiante': estudiante}, 200 if nombre else 404
-        for estudiante in estudiantes:
-            if estudiante['nombre'] == nombre:
-                return estudiante
-        return {'Estudiante': None}, 404
+        estudiante = next(filter(lambda x: x['nombre'] == nombre, estudiantes), None)
+        return {'Estudiante': estudiante}, 200 if nombre else 404
 
 
     def post(self, nombre):
+        if next(filter(lambda x: x['nombre'] == nombre, estudiantes), None):
+            return {'message': f"Un estudiante con el nombre {nombre} ya existe"}, 400
+
         data = request.get_json()
-        estudiante = {'nombre': nombre, 'edad': data['edad']}
+        estudiante = {'nombre': nombre, 'edad': data['edad'], 'materias':[]}
         estudiantes.append(estudiante)
         return estudiante, 201
+
+class MateriasEstudiante(Resource):
+    def get(self, nombre):
+        estudiante = next(filter(lambda x: x['nombre'] == nombre, estudiantes), None)
+        return {'estudiante': estudiante}, 200 if nombre else 404
+
+    def put(self, nombre):
+        estudiante = next(filter(lambda x: x['nombre'] == nombre, estudiantes), None)
+        data = request.get_json()
+        #estudiantes[0]['materia'] = {'titulo': data['titulo']}
+        #estudiante['materia'] = {'titulo': data['titulo']}
+        estudiante['materias'].append({'titulo': data['titulo']})
+        return {'materia':estudiante['materias']}, 201
+
+
 
 class ListaEstudiantes(Resource):
     def get(self):
@@ -32,3 +49,4 @@ class ListaEstudiantes(Resource):
 
 api.add_resource(Estudiante, '/estudiante/<string:nombre>')
 api.add_resource(ListaEstudiantes, '/estudiantes')
+api.add_resource(MateriasEstudiante, '/estudiante/<string:nombre>/materia')
