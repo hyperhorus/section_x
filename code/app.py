@@ -31,15 +31,19 @@ class Estudiante(Resource):
 class MateriasEstudiante(Resource):
     def get(self, nombre):
         estudiante = next(filter(lambda x: x['nombre'] == nombre, estudiantes), None)
-        return {'estudiante': estudiante}, 200 if nombre else 404
+        if estudiante == None:
+            return {'estudiante': estudiante}, 404
+        else:
+            return {'estudiante': estudiante}, 200
+
 
     def put(self, nombre):
         estudiante = next(filter(lambda x: x['nombre'] == nombre, estudiantes), None)
-        data = request.get_json()
-        #estudiantes[0]['materia'] = {'titulo': data['titulo']}
-        #estudiante['materia'] = {'titulo': data['titulo']}
-        estudiante['materias'].append({'titulo': data['titulo']})
-        return {'materia':estudiante['materias']}, 201
+        if estudiante != None:
+            data = request.get_json()
+            estudiante['materias'].append({'titulo': data['titulo']})
+            return {'materia':estudiante['materias']}, 201
+        return {'message': f'El estudiante {nombre} no existe'}, 404
 
 
 
